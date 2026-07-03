@@ -219,6 +219,21 @@ downregulating the PCI switch speeds.
 | SR-IOV | **Disabled** | Bare-metal inference; avoids IOMMU overhead and P2P interference. |
 | Preferred IO | **Auto** | Optionally set Manual → bus `81` (the c-payne switch) for marginal latency gains, but left at Auto — it's a squeeze-more optimization, not a fix, and bus numbers shift after BIOS changes. |
 
+#### Reducing gain on the redriver
+
+Per c-payne's advice, I did reduce the gain to "lvl 3" using [his
+tool](https://c-payne.com/c-payne-tool), which was probably the most finicky part of
+the process.
+
+The gain level is going to be a function of how long your SAS connector cables are.
+
+#### Picking the right SAS cables
+
+I screwed up and ordered too few of the cables from c-payne directly, so I bought what
+I thought was the same SAS cable off of Amazon. There was actually a slight difference
+that was causing issues, and I had to reorder cables - so double-check that you're
+getting the right stuff!
+
 ## Kernel / GRUB Parameters
 
 ```bash
@@ -305,7 +320,10 @@ rate. Note: lspci may still show downstream GPU links as "2.5GT/s (downgraded)"
 at idle if ASPM is active anywhere; this is cosmetic. Links retrain to Gen4
 under load.
 
+![controlpanel](./images/monitor.png)
+
 ## Resources
 
 - A frequently updated repo on getting the most out of 4, 6, or 8 RTX 6000 Pro cards: https://github.com/local-inference-lab/rtx6kpro
 - Indie PCI switches that I use: https://c-payne.com
+- RTX6kPRO discord server; lotta guys benching and testing new models: https://discord.gg/QMNvFkuDN
