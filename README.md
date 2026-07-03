@@ -27,8 +27,8 @@ In this repo you'll find
 |---|---|
 | [How much are you willing to spend?](#how-much-are-you-willing-to-spend) | $2k gets you Qwen and good STT (pretty far!); $40k gets you almost-Opus |
 | [Base system](#base-system) | Last-gen EPYC + eBay DDR4 for $5.6k |
-| [GPUs](#gpus) | 4× RTX PRO 6000, 384GB VRAM, where the money went |
-| [c-payne switch sub-BOM](#c-payne-pcie-gen4-switch-sub-bom-c-paynecom) | Indie PCIe switching so GPUs talk peer-to-peer |
+| [GPUs](#gpus) | 4× RTX PRO 6000, 384GB VRAM (where the money went) |
+| [c-payne switch sub-BOM](#c-payne-pcie-gen4-switch-sub-bom-c-paynecom) | Indie PCIe switching from [c-payne.com](https://c-payne.com) so GPUs talk peer-to-peer |
 | [GPU mount](#gpu-mount) | A day of carpentry |
 | [Making the switch behave](#getting-the-pci-switches-to-work-properly) | BIOS bifurcation, link speed, ASPM |
 | [Kernel / GRUB params](#kernel--grub-parameters) | `iommu=off` or NCCL hangs |
@@ -49,10 +49,11 @@ while still getting a lot of VRAM.
 
 ![my rig](./images/rig.png)
 
-Another somewhat unusual thing I did was to use PCIe4 switches (from c-payne.com). This
-allows the GPUs to communicate to one another "directly" at wire speeds during the
-allreduce step in tensor parallelism, rather than having to send all data through the
-PCI root complex. The upshot of this is reduced latency between the cards.
+Another somewhat unusual thing I did was to use PCIe4 switches (from
+[c-payne.com](c-payne.com)). This allows the GPUs to communicate to one another
+"directly" at wire speeds during the allreduce step in tensor parallelism, rather than
+having to send all data through the PCI root complex. The upshot of this is reduced
+latency between the cards with less of a need for expensive PCIe5 hardware.
 
 ![switch](./images/switch.png)
 
@@ -141,8 +142,6 @@ A modest, last-gen EPYC system purchased in parts almost entirely from eBay.
 | SlimSAS SFF-8654 8i cable — PCIe gen4 | 2 | ~30 | Each carries x8; pair = x16 upstream |
 | **Total** | | | **~€1,220 (~$1,330 USD)** |
 
-![switch2](./images/switch2.png)
-
 ### GPU mount
 
 I had to custom fabricate a wood enclosure for the PCI switch and GPUs, which took
@@ -184,9 +183,9 @@ could simply do `http://<llm-machine-ip>:5000` too.
 
 ### The harness itself
 
-I clanked up a model that basically just creates a tmux session for each directory in a
-VM, which then runs an `opencode` instance that backs up to the inference machine's
-HTTP API (`http://clank.j.co:5000`).
+I created a VM and clanked up an application that basically just creates a tmux session
+for each directory within the VM's `~/src` tree, which then runs an `opencode` instance
+that backs up to the inference machine's HTTP API (`http://clank.j.co:5000`).
 
 ![clankhouse](./images/clankhouse.png)
 
