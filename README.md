@@ -13,8 +13,8 @@ how to run this new kind of computing locally.
 ## Contents
 
 | Section | TL;DR |
-|---|---|---|
-| [How much are you willing to spend?](#how-much-are-you-willing-to-spend) | $2k gets you Qwen; $40k gets you almost-Opus |
+|---|---|
+| [How much are you willing to spend?](#how-much-are-you-willing-to-spend) | $2k gets you Qwen and good STT (pretty far!); $40k gets you almost-Opus |
 | [Base system](#base-system) | Last-gen EPYC + eBay DDR4 for $5.6k |
 | [GPUs](#gpus) | 4× RTX PRO 6000, 384GB VRAM, where the money went |
 | [c-payne switch sub-BOM](#c-payne-pcie-gen4-switch-sub-bom-c-paynecom) | Indie PCIe switching so GPUs talk peer-to-peer |
