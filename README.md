@@ -10,6 +10,24 @@ intelligence? How about $40k?
 If Dario and Altman are giving you heartburn (they should be), read on to figure out
 how to run this new kind of computing locally.
 
+## Contents
+
+| Section | TL;DR |
+|---|---|---|
+| [How much are you willing to spend?](#how-much-are-you-willing-to-spend) | $2k gets you Qwen; $40k gets you almost-Opus |
+| [Base system](#base-system) | Last-gen EPYC + eBay DDR4 for $5.6k |
+| [GPUs](#gpus) | 4× RTX PRO 6000, 384GB VRAM, where the money went |
+| [c-payne switch sub-BOM](#c-payne-pcie-gen4-switch-sub-bom-c-paynecom) | Indie PCIe switching so GPUs talk peer-to-peer |
+| [GPU enclosure](#gpu-enclosure) | A day of carpentry |
+| [Making the switch behave](#getting-the-pci-switches-to-work-properly) | BIOS bifurcation, link speed, ASPM |
+| [Kernel / GRUB params](#kernel--grub-parameters) | `iommu=off` or NCCL hangs |
+| [ACS disable](#acs-disable-critical-for-switch-p2p) | Keep P2P traffic inside the switch fabric |
+| [GPU power limiting](#gpu-power-limiting) | Running $46k of silicon on a 110V circuit |
+| [Result](#result) | Gen4 line rate: 27.5/50.4 GB/s, sub-µs latency |
+| [`runners/`](./runners) | Ready-to-run serving configs: [GLM-5.2-594B](./runners/GLM-5.2-594B): vLLM docker-compose, DCP4+MTP5, ~80 t/s @ 240k ctx |
+| [`tools/`](./tools) | [`measure-gpu-speed.sh`](./tools/measure-gpu-speed.sh) — one-shot P2P bandwidth/latency benchmark |
+| [Resources](#resources) | rtx6kpro repo, c-payne |
+
 ## My setup
 
 ![my rig](./images/rig.png)
