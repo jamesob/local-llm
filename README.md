@@ -101,18 +101,15 @@ A modest, last-gen EPYC system purchased in parts almost entirely from eBay.
 | PSUs | 2× Super Flower 1700W | $750 |
 | PCIe Switch | c-payne Microchip Switchtec PM40100 Gen4 (see sub-BOM below) | ~$1,330 |
 | Boot NVMe | 4TB M.2 | $291 |
-| Storage NVMe | (2x) 8TB M.2 (model weights) | $1200 |
+| Storage NVMe | (2x) 8TB M.2 (model weights) | $1,200 |
 | Fans | 3× 120mm PWM | $15 |
-
-**Total: $5,587**
+| **Total** | | **$5,587** |
 
 ### GPUs
 
 | Component | Spec | Price |
 |---|---|---|
-| GPUs | 4× NVIDIA RTX PRO 6000 Blackwell Workstation (96GB each, **384GB VRAM total**) | ~$46,000 |
-
-**Total: $46,000** (though this is definitely subject to change.)
+| GPUs | 4× NVIDIA RTX PRO 6000 Blackwell Workstation (96GB each, **384GB VRAM total**) | **~$46,000** |
 
 ### c-payne PCIe Gen4 Switch Sub-BOM (c-payne.com)
 
@@ -121,8 +118,7 @@ A modest, last-gen EPYC system purchased in parts almost entirely from eBay.
 | PCIe gen4 Switch 5× x16 — Microchip Switchtec PM40100 | 1 | 1.050 | 2× SlimSAS 8i upstream, 5× x16 quad-width-spaced downstream, aux x4 SlimSAS, 3× 8-pin EPS power |
 | SlimSAS PCIe gen4 Host Adapter x16 — REDRIVER AIC (DS160PR810) | 1 | 140 | Plugs into ROMED8-2T x16 slot, feeds switch upstream |
 | SlimSAS SFF-8654 8i cable — PCIe gen4 | 2 | ~30 | Each carries x8; pair = x16 upstream |
-
-**Switch subtotal: ~€1,220 (~$1,330 USD)**
+| **Total** | | | **~€1,220 (~$1,330 USD)** |
 
 ### GPU enclosure
 
