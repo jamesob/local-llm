@@ -17,7 +17,7 @@ how to run this new kind of computing locally.
 In this repo you'll find
 
 - the hardware I use to run SOTA locally,
-  - why I bought what and little-known SECRETS for configuring it,
+  - why I bought what and little-known *secrets* for configuring it,
 - how I run speech-to-text (STT) locally,
 - ready-to-run configuration for running models I think are good within Docker containers.
 
