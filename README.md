@@ -5,10 +5,14 @@
 ---
 
 Have $2k burning a hole in your pocket and want some local, state-of-the-art machine
-intelligence? How about $40k?
+intelligence? 
+
+How about $40k?
 
 If Dario and Altman are giving you heartburn (they should be), read on to figure out
 how to run this new kind of computing locally.
+
+---
 
 In this repo you'll find
 
@@ -171,7 +175,7 @@ I then use `opencode` hosted on a VM on another machine to access the models onc
 they're serving on `http://clank.j.co:5000`. 
 
 I use a network-internal DNS server to point `clank.j.co` to the LLM machine, but you
-could simply do http://<llm-machine-ip>:5000 too.
+could simply do `http://<llm-machine-ip>:5000` too.
 
 
 ### Getting the PCI switches to work properly
