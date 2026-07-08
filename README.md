@@ -36,7 +36,7 @@ In this repo you'll find
 | [GPU power limiting](#gpu-power-limiting) | Running $46k of silicon on a 110V circuit |
 | [Result](#result) | Gen4 line rate: 27.5/50.4 GB/s, sub-µs latency |
 | [`runners/`](./runners) | Ready-to-run serving configs: [GLM-5.2-594B](./runners/GLM-5.2-594B): vLLM docker-compose, DCP4+MTP5, ~80 t/s @ 460k ctx |
-| [`runners/stt`](./runners/stt) | Ready-to-run speech-to-text config with `whisper-large-v3` |
+| [`runners/stt`](./runners/stt) | Ready-to-run speech-to-text config with `cohere-transcribe` |
 | [`tools/`](./tools) | [`measure-gpu-speed.sh`](./tools/measure-gpu-speed.sh): P2P bandwidth/latency benchmark |
 | [Resources](#resources) | rtx6kpro repo, c-payne |
 
@@ -60,6 +60,11 @@ latency between the cards with less of a need for expensive PCIe5 hardware.
 Consequently, I'm spending money on VRAM (where it counts) rather than on a PCIe5/DDR5
 base system, which is terrifically expensive as of July 2026.
 
+By using an older host-gen4 setup rather than gen5, we're saving about $10,000 in host
+costs while still getting very good performance in VRAM, which is what we want.
+Generally, spilling over into system RAM makes LLM performance unusably slower for
+agentic workloads.
+
 My particular BOM is detailed below.
 
 
@@ -71,8 +76,10 @@ A great way to go is 2x RTX 3090s for a total of **48GB VRAM** total. You can th
 [Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B), which is an awesome model.
 
 You can also run SOTA speech-to-text (STT) with
-[`whisper-large-v3`](https://huggingface.co/openai/whisper-large-v3), which I find very
-useful. That's the model - you'd then access it with my cross-platform [`stt`
+[`cohere-transcribe`](https://huggingface.co/CohereLabs/cohere-transcribe-03-2026) (I
+was previously using 
+[`whisper-large-v3`](https://huggingface.co/openai/whisper-large-v3)), which I find very
+useful. That's the model - you could then access it with my cross-platform [`stt`
 harness](https://github.com/jamesob/stt).
 
 I've found local STT surprisingly useful - and I feel comfortable using it, unlike a
@@ -80,9 +87,19 @@ hosted equivalent. You can find a ready-to-run config in
 [`./runners/stt`](./runners/stt) that only assumes the presence of ~11GB of VRAM on an
 Nvidia GPU.
 
+#### ~$20k
+
+(TODO) 
+
+- 2x RTX 6000 Pro
+- 4x DGX Sparks networked together
+- Apple hardware
+
+I don't have any experience with this regime so I'm not of much help here.
+
 #### ~$40k
 
-At this price level, you get the next step up in model intelligence. Something pretty
+At this level, you get the next step up in model intelligence. Something pretty
 close to Claude Opus.
 
 You'd buy 4x RTX 6000 Pros for a total of **384GB of VRAM**.
@@ -92,7 +109,7 @@ You'd buy 4x RTX 6000 Pros for a total of **384GB of VRAM**.
 
 | Date | Best model | My config |
 |---|---|---|
-| 2026-07 | [`GLM-5.2-Int8Mix-NVFP4-REAP-594B`](https://huggingface.co/madeby561/GLM-5.2-Int8Mix-NVFP4-REAP-594B) | [Runner config](./runners/GLM-5.2-594B) |
+| 2026-07-01 | [`GLM-5.2-Int8Mix-NVFP4-REAP-594B`](https://huggingface.co/madeby561/GLM-5.2-Int8Mix-NVFP4-REAP-594B) | [Runner config](./runners/GLM-5.2-594B) |
 
 ##### Other approaches
 
@@ -118,14 +135,14 @@ A modest, last-gen EPYC system purchased in parts almost entirely from eBay.
 | Motherboard | ASRock Rack ROMED8-2T (SP3, 7× PCIe 4.0 x16, dual 10GbE) | $715 |
 | CPU | AMD EPYC Milan 7313P (16-core 3.0GHz) | $504 |
 | RAM | 8× 16GB Crucial CT16G4RFD4213 DDR4 ECC RDIMM (128GB total, eBay) | $642 |
-| CPU Cooler | Dynatron T17 SP3 tower, 280W TDP | $40 |
+| CPU Cooler | Noctua NH-U14s | $140 |
 | Case | AAAWave Sluice V2 open frame | $100 |
 | PSUs | 2× Super Flower 1700W | $750 |
 | PCIe Switch | c-payne Microchip Switchtec PM40100 Gen4 (see sub-BOM below) | ~$1,330 |
 | Boot NVMe | 4TB M.2 | $291 |
 | Storage NVMe | (2x) 8TB M.2 (model weights) | $1,200 |
 | Fans | 3× 120mm PWM | $15 |
-| **Total** | | **$5,587** |
+| **Total** | | **$5,687** |
 
 ### GPUs
 

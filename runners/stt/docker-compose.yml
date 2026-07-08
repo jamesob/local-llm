@@ -1,10 +1,12 @@
 services:
-  whisper:
+  cohere-transcribe:
     build: .
     ports:
       - "8201:8000"
     volumes:
       - huggingface-cache:/root/.cache/huggingface
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
     ipc: host
     runtime: nvidia
     deploy:
@@ -16,11 +18,8 @@ services:
               capabilities: [gpu]
     command:
       - --model
-      - openai/whisper-large-v3
+      - CohereLabs/cohere-transcribe-03-2026
       - --gpu-memory-utilization
       - "0.45"
-      - --max-model-len
-      - "448"
-
 volumes:
   huggingface-cache:
