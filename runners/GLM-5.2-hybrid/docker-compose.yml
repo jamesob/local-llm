@@ -1,17 +1,31 @@
-# GLM-5.2-MXFP8-NVFP4-NF3-Hybrid — daily-driver serving config.
-# 4× 96GB sm120 GPUs. Native mxfp8 tier -> ~301k KV pool -> up to ~240k context.
-#   hf download madeby561/GLM-5.2-MXFP8-NVFP4-NF3-Hybrid --local-dir ./glm52-mxfp8
-#   MODEL_DIR=./glm52-mxfp8 docker compose up
+# GLM-5.2 MXFP8-NVFP4-NF3 Hybrid — BALANCED profile (DCP4, 4-bit KV) — recommended default
+#
+# Measured 2026-07-08 on 4x RTX PRO 6000 Blackwell 96GB (SM120, PCIe Gen4 host + Gen5 switch, no NVLink):
+#   KV pool 545,906 tokens · single-stream decode 73 tok/s @ctx0 (67-70 @32k) · prefill ~1,650 tok/s (flat to 128k)
+#   Decode stays essentially flat with context depth (nvfp4 KV read path).
+#
+# Why these settings (each measured single-variable, see BENCHMARKS.md):
+#   --kv-cache-dtype nvfp4_ds_mla : FASTER than fp8 KV (70.8 vs 68.9 dec0) AND +50% pool (546k vs ~360k)
+#   --max-num-batched-tokens 2048 : +100k pool tokens and +5 dec t/s vs 4096 (costs ~13% prefill)
+#   VLLM_USE_B12X_DCP_A2A=1 + fp8 DMA wire : +2.4 dec t/s, no VRAM cost
+#   MTP-5 + seqs 8 + capture 64  : graph coverage 8x6=48 <= 64
+#
+# PREFILL-PRIORITY tweak (measured): --max-num-batched-tokens 4096 + keep HYBRID_B12X_MAX_TOKENS "2048"
+#   -> prefill 1,890 tok/s, decode ~68, pool 446,139 (max-model-len <= 430000)
+# MAX-CONTEXT variant (measured, GPQA 177/198): --kv-cache-dtype nf3_ds_mla, --max-model-len 750000,
+#   util 0.972, seqs 4, capture 16, MTP-3 -> pool 781,740, needle-verified @720k, decode ~55-60
+# Model (public): https://huggingface.co/madeby561/GLM-5.2-MXFP8-NVFP4-NF3-Hybrid
+#   hf download madeby561/GLM-5.2-MXFP8-NVFP4-NF3-Hybrid --local-dir ./glm52-hybrid
+#   MODEL_DIR=./glm52-hybrid docker compose up -d
+# KV formats via --kv-cache-dtype: fp8 (656 B/tok/layer) · nvfp4_ds_mla (432) · nf3_ds_mla (304)
 services:
   glm52:
-    image: madeby561/vllm-glm52-nvfp4-nf3-hybrid:v3
+    image: davidyoung/vllm-glm52-nvfp4-nf3-hybrid-lowbit-kv:v1
     network_mode: host
     ipc: host
     shm_size: 32gb
     init: true
-    ulimits:
-      memlock: -1
-      stack: 67108864
+    ulimits: { memlock: -1, stack: 67108864 }
     deploy:
       resources:
         reservations:
@@ -33,6 +47,8 @@ services:
       NCCL_IB_DISABLE: "1"
       NCCL_P2P_LEVEL: SYS
       NCCL_PROTO: LL,LL128,Simple
+      XDG_CACHE_HOME: /cache/jit
+      TRITON_CACHE_DIR: /cache/jit/triton
       VLLM_USE_B12X_FP8_GEMM: "1"
       VLLM_USE_B12X_MOE: "1"
       VLLM_USE_B12X_SPARSE_INDEXER: "1"
@@ -44,10 +60,12 @@ services:
       VLLM_ENABLE_PCIE_ALLREDUCE: "1"
       VLLM_PCIE_ALLREDUCE_BACKEND: b12x
       VLLM_PCIE_ONESHOT_ALLREDUCE_MAX_SIZE: 64KB
-      VLLM_PCIE_ONESHOT_MAX_BYTES: "65536"
       B12X_DENSE_SPLITK_TURBO: "1"
-      XDG_CACHE_HOME: /cache/jit
-      TRITON_CACHE_DIR: /cache/jit/triton
+      VLLM_PCIE_DMA_FP8: ag
+      B12X_PCIE_DMA_FP8: ag
+      VLLM_USE_B12X_DCP_A2A: "1"
+      VLLM_DCP_A2A_MAX_TOKENS: "64"
+      VLLM_DCP_A2A_LARGE_BACKEND: ag_rs
       HYBRID_TIER: both
       HYBRID_KEPT: b12x_nf3
       HYBRID_NF3: b12x_nf3
@@ -58,13 +76,13 @@ services:
       --served-model-name GLM-5.2 --host 0.0.0.0 --port 5001
       --trust-remote-code --tensor-parallel-size 4
       --decode-context-parallel-size 4 --dcp-comm-backend ag_rs --dcp-kv-cache-interleave-size 1
-      --kv-cache-dtype fp8
+      --kv-cache-dtype nvfp4_ds_mla
       --attention-backend B12X_MLA_SPARSE
       --moe-backend b12x
       --load-format safetensors
       -cc.pass_config.fuse_allreduce_rms=True
-      --gpu-memory-utilization 0.968
-      --max-model-len 262144 --max-num-seqs 8 --max-num-batched-tokens 2048
+      --gpu-memory-utilization 0.96
+      --max-model-len 480000 --max-num-seqs 8 --max-num-batched-tokens 2048
       --max-cudagraph-capture-size 64
       --async-scheduling --enable-chunked-prefill --enable-prefix-caching
       --enable-auto-tool-choice --tool-call-parser glm47
